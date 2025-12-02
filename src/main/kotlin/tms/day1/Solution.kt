@@ -4,18 +4,11 @@ import tms.readInput
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-private fun decipher(combinations: List<String>, countZeros: (position: Int, rotation: Int) -> Int): Int {
-    var password = 0
-    var position = 50
-    for (op in combinations) {
-        val rotation = op
-            .partition { it.isLetter() }.let { (d, r) -> d[0] to r.toInt() }
-            .let { (d, r) -> if (d == 'L') -r else r }
-        password += countZeros(position, rotation)
-        position = (position + rotation).mod(100)
-    }
-    return password
-}
+private fun decipher(input: List<String>, zeros: (position: Int, rotation: Int) -> Int): Int =
+    input
+        .map { if (it[0] == 'L') -it.drop(1).toInt() else it.drop(1).toInt() }
+        .fold(50 to 0) { (pos, pass), clicks -> (pos + clicks) % 100 to pass + zeros(pos, clicks) }
+        .second
 
 fun main() {
     fun first(input: List<String>) = decipher(input) { position, rotation ->
